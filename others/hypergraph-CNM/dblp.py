@@ -10,6 +10,7 @@ import numpy as np
 import igraph as ig
 from sklearn.metrics import adjusted_rand_score as ARI
 from strictModularity import *
+import time
 
 
 # In[2]:
@@ -30,8 +31,17 @@ def hcut(H,P):
 
 import pickle
 H, truth, partitions = pickle.load(open('dblp.pkl','rb'))
-PL = partitions[0] ## 2-section Louvain
-PC = partitions[1] ## hypergraph-CNM
+# PL = partitions[0] ## 2-section Louvain
+# PC = partitions[1] ## hypergraph-CNM
+
+# truthDic = []
+# truthNew = []
+# for i in range(len(truth)):
+#     if truth[i] not in truthDic:
+#         truthDic.append(truth[i])
+#         truthNew.append([])
+#     temp = truthDic.index(truth[i])
+#     truthNew[temp].append(i)
 
 
 # In[4]:
@@ -50,9 +60,12 @@ g = g.simplify(combine_edges=sum)
 # In[5]:
 
 
-## uncomment to re-compute the Louvain partition
-#ml = g.community_multilevel(weights="weight")
-#PL = [x for x in ml]
+# uncomment to re-compute the Louvain partition
+T1 = time.time()
+ml = g.community_multilevel(weights="weight")
+T2 = time.time()
+print('louvain运行时间:%s毫秒' % ((T2 - T1)*1000))
+PL = [x for x in ml]
 
 
 # In[6]:
@@ -69,9 +82,11 @@ print('number of parts ',len(PL))
 # In[7]:
 
 
-## uncomment to re-compute the hyper-CNM partition -- NB: this is slow!
-#
-#qC, PC = cnmAlgo(H, verbose=True)
+# uncomment to re-compute the hyper-CNM partition -- NB: this is slow!
+T1 = time.time()
+qC, PC = cnmAlgo(H, verbose=True)
+T2 = time.time()
+print('hyper-CNM运行时间:%s毫秒' % ((T2 - T1)*1000))
 
 
 # In[8]:
@@ -112,6 +127,14 @@ def AGRI(g, u, v):
 print('Partition similarity measures')
 print('ARI ',ARI(member(PL),member(PC)))
 print('AGRI ',AGRI(g,member(PL),member(PC)))
+
+# ## cluster results
+# print('Partition louvain result measures')
+# print('ARI ',ARI(member(truthNew),member(PL)))
+# print('AGRI ',AGRI(g,member(truthNew),member(PL)))
+# print('Partition hyper-CNM result measures')
+# print('ARI ',ARI(member(truthNew),member(PC)))
+# print('AGRI ',AGRI(g,member(truthNew),member(PC)))
 
 
 # In[10]:

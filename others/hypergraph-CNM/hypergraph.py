@@ -112,12 +112,12 @@ plt.xlabel('Hcut value',fontsize=14)
 plt.ylabel('Graph modularity', fontsize=14)
 slope, intercept, r, p, stderr = stats.linregress(X['hcut'],X['qG'])
 print('Balanced case -- Slope:', slope,' R_squared:',r*r)
-plt.savefig('lines_qG.eps')
+plt.savefig('lines_qG.png')
 
 
 # In[10]:
 
-
+plt.figure()
 X = D[D['regime']==0]
 plt.plot(X['hcut'],X['qH'],'*r',label='majority of 4-edges')
 X = D[D['regime']==2]
@@ -129,5 +129,5 @@ plt.xlabel('Hcut value',fontsize=14)
 plt.ylabel('Hypergraph modularity', fontsize=14)
 slope, intercept, r, p, stderr = stats.linregress(X['hcut'],X['qH'])
 print('Balanced case -- Slope:', slope,' R_squared:',r*r)
-plt.savefig('lines_qH.eps')
+plt.savefig('lines_qH.png')
 
