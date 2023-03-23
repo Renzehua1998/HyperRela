@@ -23,6 +23,8 @@ from random import shuffle, randint, sample
 
 ## return: number of nodes (recall: 0-based), and
 ## number of edges of each cardinality
+#  统计超图节点个数和各等级超边个数（列表）
+#  n：节点个数，m：各大小超边的个数列表
 def H_size(H):
     M = len(H)
     m = []
@@ -36,6 +38,8 @@ def H_size(H):
     return n+1, m
 
 ## vertex d-degrees for each d
+# d:len(m)×n矩阵，每一行都是一个等级超边中节点的统计，
+# 其中n个数分别表示每个节点在此规模超边中出现的次数
 def d_Degrees(H, n, m):
     M = len(H)
     d = [[]]*M
@@ -47,6 +51,7 @@ def d_Degrees(H, n, m):
     return d
 
 ## vertex total degrees
+# D:（长度为n列表）节点的度,分别表示每个节点的度数
 def Degrees(H,n,m,d):
     M = len(H)
     D = [0]*n
@@ -59,6 +64,7 @@ def Degrees(H,n,m,d):
 ##########################################################
 
 ## edge contribution: given (H,A,m)
+# ec:边贡献（全部包含着在社区内的边占比）
 def EdgeContribution(H,A,m):
     ec = 0
     for i in range(len(H)):
@@ -73,22 +79,24 @@ def EdgeContribution(H,A,m):
 ##########################################################
 
 ## degree tax - with d-degrees as null model
+# d-等级超边节点度作为空模型的度税
 def d_DegreeTax(A,m,d):
     dt = 0
-    for i in range(len(m)):
+    for i in range(len(m)):  # 遍历所有等级的超边，把结果累加
         if (m[i]>0):
             S = 0
-            for j in range(len(A)):
+            for j in range(len(A)):  # 遍历所有分区，把分区中每个节点在此等级超边下的度累加，取i次方
                 s = 0
                 for k in A[j]:
                     s = s + d[i][k]
                 s = s ** i
-                S = S + s
-            S = S / (i**i * m[i]**(i-1) * sum(m))
-            dt = dt + S 
+                S = S + s  # 再把所有分区的结果加起来
+            S = S / (i**i * m[i]**(i-1) * sum(m))  # 归一化
+            dt = dt + S  # 累加到总结果中
     return dt
     
 ## degree tax - with degrees as null model
+# 整体节点度作为空模型的度税（通用度税）
 def DegreeTax(A,m,D):
     dt = 0
     vol = sum(D)
@@ -110,6 +118,7 @@ def DegreeTax(A,m,D):
 ##########################################################
 
 ## 2-section: return extended list of edges and edge weights 
+# 把超图扩展为带权普通图（权重均分到完全图每条边）
 def TwoSecEdges(H,m):
     e = []
     w = []
@@ -123,6 +132,7 @@ def TwoSecEdges(H,m):
                 w.extend(x)
     return e,w 
 
+# 二元图的边贡献
 def TwoSecEdgeContribution(A,e,w):
     ec = 0
     for i in range(len(A)):
@@ -132,6 +142,7 @@ def TwoSecEdgeContribution(A,e,w):
     ec = ec / sum(w)
     return ec
 
+# 二元图的度
 def TwoSecDegrees(n,e,w):
     d = [0]*n
     for i in range(len(e)):
@@ -139,6 +150,7 @@ def TwoSecDegrees(n,e,w):
         d[list(e[i])[1]] = d[list(e[i])[1]] + w[i]
     return d
 
+# 二元图的度税
 def TwoSecDegreeTax(A,d):
     dt = 0
     for i in range(len(A)):
@@ -154,6 +166,8 @@ def TwoSecDegreeTax(A,d):
 
 ## take a partition and an edge (set)
 ## return new partition with new edge "active"
+## 取一个分区和一个边（集）
+## 返回新边缘为“活动”的新分区
 def newPart(A,s):
     P = []
     for i in range(len(A)):

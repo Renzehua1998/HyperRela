@@ -9,6 +9,9 @@ import pandas as pd
 import numpy as np
 import copy
 import matplotlib.pyplot as plt
+from pylab import *
+mpl.rcParams['font.sans-serif']=['SimHei']
+mpl.rcParams['axes.unicode_minus']=False
 from sklearn.metrics import adjusted_rand_score as Rand
 import igraph as ig
 from scipy import stats
@@ -102,32 +105,32 @@ D['regime'] = [int(x[i])+int(y[i]) for i in range(len(x))]
 
 
 X = D[D['regime']==0]
-plt.plot(X['hcut'],X['qG'],'*r',label='majority of 4-edges')
+plt.plot(X['hcut'],X['qG'],'*r',label='4节点超边')
 X = D[D['regime']==2]
-plt.plot(X['hcut'],X['qG'],'*b',label='majority of 3-edges')
+plt.plot(X['hcut'],X['qG'],'*b',label='3节点超边')
 X = D[D['regime']==1]
-plt.plot(X['hcut'],X['qG'],'*g',label='balanced')
+plt.plot(X['hcut'],X['qG'],'*g',label='二者均衡')
 plt.legend();
-plt.xlabel('Hcut value',fontsize=14)
-plt.ylabel('Graph modularity', fontsize=14)
+plt.xlabel('割边占比',fontsize=14)
+plt.ylabel('图模块度', fontsize=14)
 slope, intercept, r, p, stderr = stats.linregress(X['hcut'],X['qG'])
 print('Balanced case -- Slope:', slope,' R_squared:',r*r)
-plt.savefig('lines_qG.png')
+plt.savefig('普通图.png')
 
 
 # In[10]:
 
 plt.figure()
 X = D[D['regime']==0]
-plt.plot(X['hcut'],X['qH'],'*r',label='majority of 4-edges')
+plt.plot(X['hcut'],X['qH'],'*r',label='4节点超边')
 X = D[D['regime']==2]
-plt.plot(X['hcut'],X['qH'],'*b',label='majority of 3-edges')
+plt.plot(X['hcut'],X['qH'],'*b',label='3节点超边')
 X = D[D['regime']==1]
-plt.plot(X['hcut'],X['qH'],'*g',label='balanced')
+plt.plot(X['hcut'],X['qH'],'*g',label='二者均衡')
 plt.legend()
-plt.xlabel('Hcut value',fontsize=14)
-plt.ylabel('Hypergraph modularity', fontsize=14)
+plt.xlabel('割边占比',fontsize=14)
+plt.ylabel('超图模块度', fontsize=14)
 slope, intercept, r, p, stderr = stats.linregress(X['hcut'],X['qH'])
 print('Balanced case -- Slope:', slope,' R_squared:',r*r)
-plt.savefig('lines_qH.png')
+plt.savefig('超图.png')
 
