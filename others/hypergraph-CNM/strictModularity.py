@@ -18,6 +18,7 @@
 from scipy.special import comb as choose
 import itertools
 from random import shuffle, randint, sample
+import time
 
 ##########################################################
 
@@ -171,39 +172,42 @@ def TwoSecDegreeTax(A,d):
 def newPart(A,s):
     P = []
     for i in range(len(A)):
-        if(len(s.intersection(A[i])) == 0):
-            P.append(A[i])
-        else:
-            s = s.union(A[i])
+        if(len(s.intersection(A[i])) == 0):  # 边和这个分区节点没有交集
+            P.append(A[i])  # 什么也不做
+        else:  # 有交集
+            s = s.union(A[i])  # 新分区把这个边的所有节点加入进去
     P.append(s)
     return P
 
 ##########################################################
 
+## 输入超图H，是否print内容，是否使用d-等级超边模块度
 def cnmAlgo(H, verbose=False, ddeg=False):
-    ## get degrees from H
-    n, m = H_size(H) 
-    d = d_Degrees(H,n,m)
-    D = Degrees(H,n,m,d)
+    ## get degrees from H  获取超图节点的度
+    n, m = H_size(H)  # n：节点个数，m：各大小超边的个数列表
+    d = d_Degrees(H,n,m)  # len(m)xn矩阵
+    D = Degrees(H,n,m,d)  # 长度为n列表
     ## get all edges in a list
-    e = []
+    e = []  # 所有超边放到一个列表中
     for i in range(len(H)):
         e.extend(H[i])
     ## initialize modularity, partition
+    ## 初始化返回值
     A_opt = []
     for i in range(n):
-        A_opt.extend([{i}])
+        A_opt.extend([{i}])  # 一个节点为一个社区
     if ddeg:
         q_opt = EdgeContribution(H,A_opt,m) - d_DegreeTax(A_opt,m,d)  
     else:
         q_opt = EdgeContribution(H,A_opt,m) - DegreeTax(A_opt,m,D)
     ## e contains the edges NOT yet in a part
-    while len(e)>0:
+    while len(e)>0:  # 遍历所有超边，每次放入一个最大模块度提升的超边
         q0 = -1
         e0 = -1
-        if verbose:
+        if verbose:  # 输出当前最优模块度和剩余边数
             print('best overall:',q_opt, 'edges left: ',len(e))
         ## pick best edge to add .. this is slow as is!
+        ## 找出对模块度贡献最大的超边
         for i in range(len(e)):
             P = newPart(A_opt,e[i])
             if ddeg:
@@ -214,10 +218,12 @@ def cnmAlgo(H, verbose=False, ddeg=False):
                 e0 = i
                 q0 = q
         ## add best edge found if any
+        ## 把这个最优超边加进分区内
         if(q0 > q_opt):
             q_opt = q0
             A_opt = newPart(A_opt,e[e0])
             ## remove all 'active' edges
+            ## 将这个超边从待选列表中移除
             r = []    
             for i in range(len(e)):
                 for j in range(len(A_opt)):
@@ -234,10 +240,11 @@ def cnmAlgo(H, verbose=False, ddeg=False):
 ##########################################################
 
 ## random algorithm - start from singletons, add edges w.r.t. permutation IF q improves
+## 随机扩展普通图算法，指定迭代次数，每次添加一个超边，保留普通模块度最大的，贪婪迭代
 def randomAlgoTwoSec(H, steps=10, verbose=False):
     ## get degrees from H
     n, m = H_size(H) 
-    ed, w = TwoSecEdges(H, m)
+    ed, w = TwoSecEdges(H, m)  # 扩展为普通图，返回边列表和权值列表
     d = TwoSecDegrees(n, ed, w)
     ## get all edges in H
     e = []
@@ -271,6 +278,7 @@ def randomAlgoTwoSec(H, steps=10, verbose=False):
 
 
 ## random algorithm - start from singletons, add edges w.r.t. permutation IF q improves
+## 随机超图算法，指定迭代次数，每次添加一个超边，保留超图模块度最大的，贪婪迭代
 def randomAlgo(H, steps=10, verbose=False, ddeg=False):
     ## get degrees from H
     n, m = H_size(H) 
@@ -315,6 +323,7 @@ def randomAlgo(H, steps=10, verbose=False, ddeg=False):
 ##########################################################
 
 ## Map vertices 0 .. n-1 to their respective 0-based part number
+## 返回每个节点对应的分区编号
 def PartitionLabels(P):
     n = 0
     for i in range(len(P)):
@@ -331,6 +340,9 @@ def PartitionLabels(P):
 ## generate m edges between [idx1,idx2] inclusively
 ## of size between [size1,size2] inclusively
 ## Store in a list of lists of sets
+##在[idx1，idx2]之间生成m条边（包括）
+##尺寸介于[size1，size2]之间（含）
+##存储在集合列表中
 def generateEdges(m,idx1,idx2,size1,size2):
     ## init
     L = [[]]*(size2+1)
@@ -346,6 +358,7 @@ def generateEdges(m,idx1,idx2,size1,size2):
     return L  
 
 ## merge two lists of lists of sets
+## 合并两个集合列表 
 def mergeEdges(L1,L2):
     l = max(len(L1),len(L2))
     L = [[]]*l
@@ -361,6 +374,7 @@ def mergeEdges(L1,L2):
 ##########################################################
 
 ## format Hypergraph given list of hyperedges (list of sets of 0-based integers)
+## 把原始超边列表转换为分层次的超边集
 def list2H(h):
     ml = max([len(x) for x in h])
     H = [[]]*(ml+1)
@@ -372,6 +386,7 @@ def list2H(h):
     return H
 
 ## two section modularity
+## 普通图模块度
 def modularityG(H,A):
     n, m = H_size(H) 
     ed, w = TwoSecEdges(H, m)
@@ -379,6 +394,7 @@ def modularityG(H,A):
     return(TwoSecEdgeContribution(A, ed, w) - TwoSecDegreeTax(A, d))
 
 ## strict H-modularity
+## 严格超图模块度
 def modularityH(H,A,ddeg=False):
     n, m = H_size(H) 
     d = d_Degrees(H,n,m)
