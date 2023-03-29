@@ -71,14 +71,7 @@ class EdgeTrie:
             elif ch[i].val < s[index]:
                 continue  # 已经计算过了，避免重复计算
             else:
-                j = index + 1
-                while (j < len(s)):
-                    if ch[i].val == s[j]:
-                        r += ch[i].endNum + self.searchOne(s, j+1, ch[i].children)
-                        break
-                    elif ch[i].val < s[j]:
-                        break
-                    j += 1
+                r += self.searchOne(s, index+1, ch)
         return r
     
     ## 寻找包含于分区s的超边的数目
