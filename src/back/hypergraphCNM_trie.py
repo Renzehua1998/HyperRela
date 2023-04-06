@@ -161,7 +161,7 @@ def cnmAlgo(H, verbose=False):
     q_opt = EdgeContribution(H,A_opt,m) - DegreeTax(A_opt,m,D)
     node_P = [i for i in range(n)]  # 每个节点对应哪个分区
 
-    addEdge(A_opt, E[865], E, m, D, node_P, edgeTrie)  # 这一条会卡死
+    # addEdge(A_opt, E[865], E, m, D, node_P, edgeTrie)  # 这一条会卡死
     
     ## 计算每条边对初始划分的模块度提升
     e_deltaQ = [0]*len(E)
