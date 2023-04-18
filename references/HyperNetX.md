@@ -29,6 +29,7 @@ pip install hypernetx
 主要是`pip install hypernetx`
 
 - 可以使用[NWHy](https://github.com/pnnl/NWHypergraph)框架进行并行加速。如果您需要使用NWHy，则需要在环境中使用python=3.9版本和conda版本的tbb库
+- 安装`partition_igraph`库以进行超图聚类：`pip install partition-igraph`
 
 # 术语表
 
